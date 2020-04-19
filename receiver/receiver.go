@@ -3,6 +3,7 @@ package receiver
 import (
 	"fmt"
 	"log"
+	"time"
 	"vk-to-telegram/config"
 	"vk-to-telegram/tools"
 )
@@ -15,16 +16,49 @@ type LongPollInit struct {
 	} `json:"response"`
 }
 
+type ReceivedData struct {
+	Ts      string `json:"ts"`
+	Updates []struct {
+		Type   string `json:"type"`
+		Object struct {
+			Message struct {
+				Date                  int           `json:"date"`
+				FromID                int           `json:"from_id"`
+				ID                    int           `json:"id"`
+				Out                   int           `json:"out"`
+				PeerID                int           `json:"peer_id"`
+				Text                  string        `json:"text"`
+				ConversationMessageID int           `json:"conversation_message_id"`
+				FwdMessages           []interface{} `json:"fwd_messages"`
+				Important             bool          `json:"important"`
+				RandomID              int           `json:"random_id"`
+				Attachments           []interface{} `json:"attachments"`
+				IsHidden              bool          `json:"is_hidden"`
+			} `json:"message"`
+			ClientInfo struct {
+				ButtonActions  []string `json:"button_actions"`
+				Keyboard       bool     `json:"keyboard"`
+				InlineKeyboard bool     `json:"inline_keyboard"`
+				LangID         int      `json:"lang_id"`
+			} `json:"client_info"`
+		} `json:"object"`
+		GroupID int    `json:"group_id"`
+		EventID string `json:"event_id"`
+	} `json:"updates"`
+}
+
 func StartPolling() {
 	fmt.Println("Starting vk receiver...")
 	// get key, server and ts
 	group_id := config.Data.VkGroupId
 	version := config.Data.VkApiVersion
 	token := config.Data.VkAccessToken
-	query_url := "https://api.vk.com/method/groups.getLongPollServer?group_id=" + group_id + "&v=" + version + "&access_token=" + token
+	initial_url := "https://api.vk.com/method/groups.getLongPollServer?group_id=" + group_id + "&v=" + version + "&access_token=" + token
+
+	log.Println("Long Poll initial url is " + initial_url)
 
 	lp_data := LongPollInit{}
-	err := tools.GetJson(query_url, &lp_data)
+	err := tools.GetJson(initial_url, &lp_data)
 
 	if err != nil {
 		log.Fatal("Cannot init Long Poll")
@@ -34,7 +68,25 @@ func StartPolling() {
 	server := lp_data.Response.Server
 	ts := lp_data.Response.Ts
 
-	fmt.Println("Key: " + key)
-	fmt.Println("Server: " + server)
-	fmt.Println("TS: " + ts)
+	log.Println("Long Poll initialized with variables: ")
+	log.Println("Key: " + key)
+	log.Println("Server: " + server)
+	log.Println("TS: " + ts)
+
+	query_url := "" + server + "?act=a_check&key=" + key + "&ts=" + ts + "&wait=1"
+
+	recv_data := ReceivedData{}
+
+	for {
+		err = tools.GetJson(query_url, &recv_data)
+		if err != nil {
+			log.Fatal("An error occured while making request.")
+		}
+		fmt.Println("New TS: " + recv_data.Ts)
+
+		// update last update id
+		ts = recv_data.Ts
+		time.Sleep(time.Second * 10)
+	}
+
 }
