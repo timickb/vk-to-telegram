@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"os"
 	"vk-to-telegram/config"
+	"vk-to-telegram/receiver"
 )
 
 func check(e error) {
@@ -15,6 +13,8 @@ func check(e error) {
 }
 
 func main() {
+	fmt.Println("VK-to-Telegram message resender")
 	config.ReadConfig()
 	fmt.Println(config.Data.TelegramToken)
+	receiver.StartPolling()
 }
