@@ -3,5 +3,6 @@
     "vk_group_id": "",
     "vk_access_token": "",
     "telegram_token": "",
+    "telegram_chat_id": "",
     "port": 8080
 }

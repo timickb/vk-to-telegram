@@ -1,4 +1,4 @@
-package receiver
+package main
 
 import (
 	"log"
@@ -97,4 +97,10 @@ func StartPolling() {
 		time.Sleep(time.Second * 10)
 	}
 
+}
+
+func main() {
+	log.Println("VK TO TELEGRAMM MESSAGE RESENDER")
+	config.ReadConfig()
+	StartPolling()
 }
