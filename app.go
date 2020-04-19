@@ -7,6 +7,27 @@ import (
 	"vk-to-telegram/tools"
 )
 
+type TelegramResponse struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		MessageID int `json:"message_id"`
+		From      struct {
+			ID        int    `json:"id"`
+			IsBot     bool   `json:"is_bot"`
+			FirstName string `json:"first_name"`
+			Username  string `json:"username"`
+		} `json:"from"`
+		Chat struct {
+			ID        int    `json:"id"`
+			FirstName string `json:"first_name"`
+			Username  string `json:"username"`
+			Type      string `json:"type"`
+		} `json:"chat"`
+		Date int    `json:"date"`
+		Text string `json:"text"`
+	} `json:"result"`
+}
+
 type LongPollInit struct {
 	Response struct {
 		Key    string `json:"key"`
@@ -15,25 +36,27 @@ type LongPollInit struct {
 	} `json:"response"`
 }
 
+type Message struct {
+	Date                  int           `json:"date"`
+	FromID                int           `json:"from_id"`
+	ID                    int           `json:"id"`
+	Out                   int           `json:"out"`
+	PeerID                int           `json:"peer_id"`
+	Text                  string        `json:"text"`
+	ConversationMessageID int           `json:"conversation_message_id"`
+	FwdMessages           []interface{} `json:"fwd_messages"`
+	Important             bool          `json:"important"`
+	RandomID              int           `json:"random_id"`
+	Attachments           []interface{} `json:"attachments"`
+	IsHidden              bool          `json:"is_hidden"`
+}
+
 type ReceivedData struct {
 	Ts      string `json:"ts"`
 	Updates []struct {
 		Type   string `json:"type"`
 		Object struct {
-			Message struct {
-				Date                  int           `json:"date"`
-				FromID                int           `json:"from_id"`
-				ID                    int           `json:"id"`
-				Out                   int           `json:"out"`
-				PeerID                int           `json:"peer_id"`
-				Text                  string        `json:"text"`
-				ConversationMessageID int           `json:"conversation_message_id"`
-				FwdMessages           []interface{} `json:"fwd_messages"`
-				Important             bool          `json:"important"`
-				RandomID              int           `json:"random_id"`
-				Attachments           []interface{} `json:"attachments"`
-				IsHidden              bool          `json:"is_hidden"`
-			} `json:"message"`
+			Message    Message `json:"message"`
 			ClientInfo struct {
 				ButtonActions  []string `json:"button_actions"`
 				Keyboard       bool     `json:"keyboard"`
@@ -44,6 +67,25 @@ type ReceivedData struct {
 		GroupID int    `json:"group_id"`
 		EventID string `json:"event_id"`
 	} `json:"updates"`
+}
+
+func SendToTelegram(msg Message) int {
+	token := config.Data.TelegramToken
+	chat_id := config.Data.TelegramChatId
+
+	query_url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + msg.Text
+
+	res := TelegramResponse{}
+	err := tools.GetJson(query_url, &res)
+
+	if err != nil {
+		return 1
+	}
+
+	if res.Ok == false {
+		return 2
+	}
+	return 0
 }
 
 func StartPolling() {
@@ -91,6 +133,16 @@ func StartPolling() {
 			log.Println("Update number", (i + 1), "type is "+recv_data.Updates[i].Type)
 			if recv_data.Updates[i].Type == "message_new" {
 				log.Println("New message text:", recv_data.Updates[i].Object.Message.Text)
+				result := SendToTelegram(recv_data.Updates[i].Object.Message)
+				if result == 0 {
+					log.Println("Message sended to telegram!")
+				}
+				if result == 1 {
+					log.Println("An error occured while sending GET query.")
+				}
+				if result == 2 {
+					log.Println("Telegram denied this query.")
+				}
 			}
 		}
 
@@ -100,7 +152,7 @@ func StartPolling() {
 }
 
 func main() {
-	log.Println("VK TO TELEGRAMM MESSAGE RESENDER")
+	log.Println("VK TO TELEGRAM MESSAGE RESENDER")
 	config.ReadConfig()
 	StartPolling()
 }
