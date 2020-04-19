@@ -1,7 +1,6 @@
 package receiver
 
 import (
-	"fmt"
 	"log"
 	"time"
 	"vk-to-telegram/config"
@@ -48,7 +47,7 @@ type ReceivedData struct {
 }
 
 func StartPolling() {
-	fmt.Println("Starting vk receiver...")
+	log.Println("Initializing VK Bot Long Poll API...")
 	// get key, server and ts
 	group_id := config.Data.VkGroupId
 	version := config.Data.VkApiVersion
@@ -77,15 +76,24 @@ func StartPolling() {
 
 	recv_data := ReceivedData{}
 
+	// main update receiver loop
 	for {
 		err = tools.GetJson(query_url, &recv_data)
 		if err != nil {
 			log.Fatal("An error occured while making request.")
 		}
-		fmt.Println("New TS: " + recv_data.Ts)
-
 		// update last update id
 		ts = recv_data.Ts
+		log.Println("New TS: " + recv_data.Ts)
+		log.Println("Received", len(recv_data.Updates), "updates")
+
+		for i := 0; i < len(recv_data.Updates); i++ {
+			log.Println("Update number", (i + 1), "type is "+recv_data.Updates[i].Type)
+			if recv_data.Updates[i].Type == "message_new" {
+				log.Println("New message text:", recv_data.Updates[i].Object.Message.Text)
+			}
+		}
+
 		time.Sleep(time.Second * 10)
 	}
 
