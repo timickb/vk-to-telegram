@@ -1,0 +1,7 @@
+{
+    "vk_key": "<key>",
+    "vk_server": "<server>",
+    "vk_ts": 5,
+    "telegram_token": "<token>",
+    "port": 8080
+}
