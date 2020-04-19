@@ -2,20 +2,39 @@ package receiver
 
 import (
 	"fmt"
-	"net/http"
+	"log"
 	"vk-to-telegram/config"
+	"vk-to-telegram/tools"
 )
+
+type LongPollInit struct {
+	Response struct {
+		Key    string `json:"key"`
+		Server string `json:"server"`
+		Ts     string `json:"ts"`
+	} `json:"response"`
+}
 
 func StartPolling() {
 	fmt.Println("Starting vk receiver...")
-	key := config.Data.VkKey
-	server := config.Data.VkServer
-	ts := config.Data.VkTs
-	url := server + "?act=a_check&key=" + key + "&ts=" + string(ts) + "&wait=25&mode=2&version=3"
-	fmt.Println(url)
-	resp, err := http.Get(url)
+	// get key, server and ts
+	group_id := config.Data.VkGroupId
+	version := config.Data.VkApiVersion
+	token := config.Data.VkAccessToken
+	query_url := "https://api.vk.com/method/groups.getLongPollServer?group_id=" + group_id + "&v=" + version + "&access_token=" + token
+
+	lp_data := LongPollInit{}
+	err := tools.GetJson(query_url, &lp_data)
+
 	if err != nil {
-		fmt.Println("Cannot complete query to API")
+		log.Fatal("Cannot init Long Poll")
 	}
-	fmt.Println(resp.Body)
+
+	key := lp_data.Response.Key
+	server := lp_data.Response.Server
+	ts := lp_data.Response.Ts
+
+	fmt.Println("Key: " + key)
+	fmt.Println("Server: " + server)
+	fmt.Println("TS: " + ts)
 }

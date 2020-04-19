@@ -12,9 +12,9 @@ func check(e error) {
 }
 
 type Config struct {
-	VkKey         string `json:"vk_key"`
-	VkServer      string `json:"vk_server"`
-	VkTs          int    `json:"vk_ts"`
+	VkApiVersion  string `json:"vk_api_version"`
+	VkGroupId     string `json:"vk_group_id"`
+	VkAccessToken string `json:"vk_access_token"`
 	TelegramToken string `json:"telegram_token"`
 	Port          int    `json:"port"`
 }
