@@ -64,30 +64,24 @@ func StartPolling() {
 			log.Fatal("An error occured while making request.")
 		}
 		// update last update id
-		changed := true
-		if recv_data.Ts == ts {
-			changed = false
-		} else {
-			ts = recv_data.Ts
-		}
+		ts = recv_data.Ts
+		query_url = "" + server + "?act=a_check&key=" + key + "&ts=" + ts + "&wait=1"
 		log.Println("New TS: " + recv_data.Ts)
 		log.Println("Received", len(recv_data.Updates), "updates")
 
-		if changed == true {
-			for i := 0; i < len(recv_data.Updates); i++ {
-				log.Println("Update number", (i + 1), "type is "+recv_data.Updates[i].Type)
-				if recv_data.Updates[i].Type == "message_new" {
-					log.Println("New message text:", recv_data.Updates[i].Object.Message.Text)
-					result := SendToTelegram(recv_data.Updates[i].Object.Message)
-					if result == 0 {
-						log.Println("Message sent to telegram!")
-					}
-					if result == 1 {
-						log.Println("An error occured while sending GET query.")
-					}
-					if result == 2 {
-						log.Println("Telegram denied this query.")
-					}
+		for i := 0; i < len(recv_data.Updates); i++ {
+			log.Println("Update number", (i + 1), "type is "+recv_data.Updates[i].Type)
+			if recv_data.Updates[i].Type == "message_new" {
+				log.Println("New message text:", recv_data.Updates[i].Object.Message.Text)
+				result := SendToTelegram(recv_data.Updates[i].Object.Message)
+				if result == 0 {
+					log.Println("Message sent to telegram!")
+				}
+				if result == 1 {
+					log.Println("An error occured while sending GET query.")
+				}
+				if result == 2 {
+					log.Println("Telegram denied this query.")
 				}
 			}
 		}
