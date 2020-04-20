@@ -8,25 +8,6 @@ import (
 	"vk-to-telegram/tools"
 )
 
-func SendToTelegram(msg structs.Message) int {
-	token := config.Data.TelegramToken
-	chat_id := config.Data.TelegramChatId
-
-	query_url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + msg.Text
-
-	res := structs.TelegramResponse{}
-	err := tools.GetJson(query_url, &res)
-
-	if err != nil {
-		return 1
-	}
-
-	if res.Ok == false {
-		return 2
-	}
-	return 0
-}
-
 func StartPolling() {
 	log.Println("Initializing VK Bot Long Poll API...")
 	// get key, server and ts
@@ -66,6 +47,7 @@ func StartPolling() {
 		// update last update id
 		ts = recv_data.Ts
 		query_url = "" + server + "?act=a_check&key=" + key + "&ts=" + ts + "&wait=1"
+
 		log.Println("New TS: " + recv_data.Ts)
 		log.Println("Received", len(recv_data.Updates), "updates")
 
