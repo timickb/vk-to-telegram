@@ -64,7 +64,12 @@ func StartPolling() {
 			log.Fatal("An error occured while making request.")
 		}
 		// update last update id
-		ts = recv_data.Ts
+		changed := true
+		if recv_data.Ts == ts {
+			changed = false
+		} else {
+			ts = recv_data.Ts
+		}
 		log.Println("New TS: " + recv_data.Ts)
 		log.Println("Received", len(recv_data.Updates), "updates")
 
@@ -74,7 +79,7 @@ func StartPolling() {
 				log.Println("New message text:", recv_data.Updates[i].Object.Message.Text)
 				result := SendToTelegram(recv_data.Updates[i].Object.Message)
 				if result == 0 {
-					log.Println("Message sended to telegram!")
+					log.Println("Message sent to telegram!")
 				}
 				if result == 1 {
 					log.Println("An error occured while sending GET query.")
