@@ -30,18 +30,47 @@ type LongPollInit struct {
 }
 
 type Message struct {
-	Date                  int           `json:"date"`
-	FromID                int           `json:"from_id"`
-	ID                    int           `json:"id"`
-	Out                   int           `json:"out"`
-	PeerID                int           `json:"peer_id"`
-	Text                  string        `json:"text"`
-	ConversationMessageID int           `json:"conversation_message_id"`
-	FwdMessages           []interface{} `json:"fwd_messages"`
-	Important             bool          `json:"important"`
-	RandomID              int           `json:"random_id"`
-	Attachments           []interface{} `json:"attachments"`
-	IsHidden              bool          `json:"is_hidden"`
+	Date                  int          `json:"date"`
+	FromID                int          `json:"from_id"`
+	ID                    int          `json:"id"`
+	Out                   int          `json:"out"`
+	PeerID                int          `json:"peer_id"`
+	Text                  string       `json:"text"`
+	ConversationMessageID int          `json:"conversation_message_id"`
+	FwdMessages           []Message    `json:"fwd_messages"`
+	Important             bool         `json:"important"`
+	RandomID              int          `json:"random_id"`
+	Attachments           []Attachment `json:"attachments"`
+	IsHidden              bool         `json:"is_hidden"`
+}
+
+type Attachment struct {
+	Type  string `json:"type"`
+	Photo struct {
+		ID      int `json:"id"`
+		AlbumID int `json:"album_id"`
+		OwnerID int `json:"owner_id"`
+		Sizes   []struct {
+			Type   string `json:"type"`
+			URL    string `json:"url"`
+			Width  int    `json:"width"`
+			Height int    `json:"height"`
+		} `json:"sizes"`
+		Text      string `json:"text"`
+		Date      int    `json:"date"`
+		AccessKey string `json:"access_key"`
+	} `json:"photo"`
+	Doc struct {
+		ID        int    `json:"id"`
+		OwnerID   int    `json:"owner_id"`
+		Title     string `json:"title"`
+		Size      int    `json:"size"`
+		Ext       string `json:"ext"`
+		URL       string `json:"url"`
+		Date      int    `json:"date"`
+		Type      int    `json:"type"`
+		AccessKey string `json:"access_key"`
+	} `json:"doc"`
 }
 
 type ReceivedData struct {

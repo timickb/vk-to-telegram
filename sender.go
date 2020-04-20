@@ -24,3 +24,22 @@ func SendToTelegram(msg structs.Message) int {
 	}
 	return 0
 }
+
+func HandleFwdMessages(msg structs.Message) {
+
+}
+
+func GetAttachments(msg structs.Message) []string {
+	var result []string
+	for i := 0; i < len(msg.Attachments); i++ {
+		att := msg.Attachments[i]
+		if att.Type == "photo" {
+			last_url_index := len(msg.Attachments[i].Photo.Sizes) - 1
+			result = append(result, msg.Attachments[i].Photo.Sizes[last_url_index].URL)
+		}
+		if att.Type == "doc" {
+			result = append(result, msg.Attachments[i].Doc.URL)
+		}
+	}
+	return result
+}
