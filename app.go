@@ -73,19 +73,21 @@ func StartPolling() {
 		log.Println("New TS: " + recv_data.Ts)
 		log.Println("Received", len(recv_data.Updates), "updates")
 
-		for i := 0; i < len(recv_data.Updates); i++ {
-			log.Println("Update number", (i + 1), "type is "+recv_data.Updates[i].Type)
-			if recv_data.Updates[i].Type == "message_new" {
-				log.Println("New message text:", recv_data.Updates[i].Object.Message.Text)
-				result := SendToTelegram(recv_data.Updates[i].Object.Message)
-				if result == 0 {
-					log.Println("Message sent to telegram!")
-				}
-				if result == 1 {
-					log.Println("An error occured while sending GET query.")
-				}
-				if result == 2 {
-					log.Println("Telegram denied this query.")
+		if changed == true {
+			for i := 0; i < len(recv_data.Updates); i++ {
+				log.Println("Update number", (i + 1), "type is "+recv_data.Updates[i].Type)
+				if recv_data.Updates[i].Type == "message_new" {
+					log.Println("New message text:", recv_data.Updates[i].Object.Message.Text)
+					result := SendToTelegram(recv_data.Updates[i].Object.Message)
+					if result == 0 {
+						log.Println("Message sent to telegram!")
+					}
+					if result == 1 {
+						log.Println("An error occured while sending GET query.")
+					}
+					if result == 2 {
+						log.Println("Telegram denied this query.")
+					}
 				}
 			}
 		}
