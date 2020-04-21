@@ -31,7 +31,7 @@ func SendToTelegram(msg structs.Message) int {
 }
 
 func GetFullMessageText(graph structs.Message) string {
-	result := ""
+	result := graph.Text
 	var queue []structs.Message
 	queue = append(queue, graph)
 
