@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"vk-to-telegram/config"
 	"vk-to-telegram/structs"
 	"vk-to-telegram/tools"
@@ -13,6 +14,8 @@ func SendToTelegram(msg structs.Message) int {
 	text := GetFullMessageText(msg)
 
 	query_url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + text
+
+	log.Println("Query to telegram: ", query_url)
 
 	res := structs.TelegramResponse{}
 	err := tools.GetJson(query_url, &res)

@@ -54,7 +54,7 @@ func StartPolling() {
 		for i := 0; i < len(recv_data.Updates); i++ {
 			log.Println("Update number", (i + 1), "type is "+recv_data.Updates[i].Type)
 			if recv_data.Updates[i].Type == "message_new" {
-				log.Println("New message text:", recv_data.Updates[i].Object.Message.Text)
+				log.Println("New message from:", recv_data.Updates[i].Object.Message.FromID)
 				result := SendToTelegram(recv_data.Updates[i].Object.Message)
 				if result == 0 {
 					log.Println("Message sent to telegram!")
