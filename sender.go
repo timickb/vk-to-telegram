@@ -10,7 +10,9 @@ func SendToTelegram(msg structs.Message) int {
 	token := config.Data.TelegramToken
 	chat_id := config.Data.TelegramChatId
 
-	query_url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + msg.Text
+	text := GetFullMessageText(msg)
+
+	query_url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + text
 
 	res := structs.TelegramResponse{}
 	err := tools.GetJson(query_url, &res)
@@ -25,8 +27,21 @@ func SendToTelegram(msg structs.Message) int {
 	return 0
 }
 
-func HandleFwdMessages(msg structs.Message) {
+func GetFullMessageText(graph structs.Message) string {
+	result := ""
+	var queue []structs.Message
+	queue = append(queue, graph)
 
+	for len(queue) > 0 {
+		msg := queue[0]
+		queue = queue[1:]
+		for i := 0; i < len(msg.FwdMessages); i++ {
+			result += msg.FwdMessages[i].Text
+			result += "\r\n===============\r\n"
+		}
+	}
+
+	return result
 }
 
 func GetAttachments(msg structs.Message) []string {
