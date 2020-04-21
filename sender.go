@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/url"
 	"vk-to-telegram/config"
 	"vk-to-telegram/structs"
 	"vk-to-telegram/tools"
@@ -11,9 +12,9 @@ func SendToTelegram(msg structs.Message) int {
 	token := config.Data.TelegramToken
 	chat_id := config.Data.TelegramChatId
 
-	text := GetFullMessageText(msg)
+	text := url.QueryEscape(GetFullMessageText(msg))
 
-	query_url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=\"" + text + "\"&parse_mode=HTML"
+	query_url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + text + "&parse_mode=HTML"
 
 	log.Println("Query to telegram: ", query_url)
 
@@ -39,7 +40,7 @@ func GetFullMessageText(graph structs.Message) string {
 		msg := queue[0]
 		queue = queue[1:]
 		for i := 0; i < len(msg.FwdMessages); i++ {
-			result += "<br>===============<br>"
+			result += "\n===============\n"
 			result += msg.FwdMessages[i].Text
 			queue = append(queue, msg.FwdMessages[i].FwdMessages...)
 		}
