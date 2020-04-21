@@ -13,7 +13,7 @@ func SendToTelegram(msg structs.Message) int {
 
 	text := GetFullMessageText(msg)
 
-	query_url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + text
+	query_url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=\"" + text + "\"&parse_mode=HTML"
 
 	log.Println("Query to telegram: ", query_url)
 
@@ -39,8 +39,8 @@ func GetFullMessageText(graph structs.Message) string {
 		msg := queue[0]
 		queue = queue[1:]
 		for i := 0; i < len(msg.FwdMessages); i++ {
+			result += "<br>===============<br>"
 			result += msg.FwdMessages[i].Text
-			result += "\r\n===============\r\n"
 			queue = append(queue, msg.FwdMessages[i].FwdMessages...)
 		}
 	}
