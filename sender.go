@@ -36,13 +36,22 @@ func GetFullMessageText(graph structs.Message) string {
 	var queue []structs.Message
 	queue = append(queue, graph)
 
+	depth := 1
+
 	for len(queue) > 0 {
 		msg := queue[0]
 		queue = queue[1:]
-		for i := 0; i < len(msg.FwdMessages); i++ {
+		size := len(msg.FwdMessages)
+		if size > 0 {
+			result += "\n" + strings.Repeat("-", size) + "Forwarded:\n"
+		}
+		for i := 0; i < size; i++ {
 			result += "\n===============\n"
 			result += msg.FwdMessages[i].Text
 			queue = append(queue, msg.FwdMessages[i].FwdMessages...)
+		}
+		if size > 0 {
+			result += "\n" + strings.Repeat("-", size) + "Forwarded:\n"
 		}
 	}
 
