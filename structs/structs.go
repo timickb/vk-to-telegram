@@ -44,33 +44,37 @@ type Message struct {
 	IsHidden              bool         `json:"is_hidden"`
 }
 
+type Doc struct {
+	ID        int    `json:"id"`
+	OwnerID   int    `json:"owner_id"`
+	Title     string `json:"title"`
+	Size      int    `json:"size"`
+	Ext       string `json:"ext"`
+	URL       string `json:"url"`
+	Date      int    `json:"date"`
+	Type      int    `json:"type"`
+	AccessKey string `json:"access_key"`
+}
+
+type Photo struct {
+	ID      int `json:"id"`
+	AlbumID int `json:"album_id"`
+	OwnerID int `json:"owner_id"`
+	Sizes   []struct {
+		Type   string `json:"type"`
+		URL    string `json:"url"`
+		Width  int    `json:"width"`
+		Height int    `json:"height"`
+	} `json:"sizes"`
+	Text      string `json:"text"`
+	Date      int    `json:"date"`
+	AccessKey string `json:"access_key"`
+}
+
 type Attachment struct {
 	Type  string `json:"type"`
-	Photo struct {
-		ID      int `json:"id"`
-		AlbumID int `json:"album_id"`
-		OwnerID int `json:"owner_id"`
-		Sizes   []struct {
-			Type   string `json:"type"`
-			URL    string `json:"url"`
-			Width  int    `json:"width"`
-			Height int    `json:"height"`
-		} `json:"sizes"`
-		Text      string `json:"text"`
-		Date      int    `json:"date"`
-		AccessKey string `json:"access_key"`
-	} `json:"photo"`
-	Doc struct {
-		ID        int    `json:"id"`
-		OwnerID   int    `json:"owner_id"`
-		Title     string `json:"title"`
-		Size      int    `json:"size"`
-		Ext       string `json:"ext"`
-		URL       string `json:"url"`
-		Date      int    `json:"date"`
-		Type      int    `json:"type"`
-		AccessKey string `json:"access_key"`
-	} `json:"doc"`
+	Photo Photo  `json:"photo"`
+	Doc   Doc    `json:"doc"`
 }
 
 type ReceivedData struct {

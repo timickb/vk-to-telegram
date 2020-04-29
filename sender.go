@@ -14,7 +14,9 @@ func SendToTelegram(msg structs.Message) int {
 
 	text := url.QueryEscape(GetFullMessageText(msg))
 
-	query_url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + text + "&parse_mode=HTML"
+	base_url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id
+
+	query_url := base_url + "&text=" + text + "&parse_mode=HTML"
 
 	log.Println("Query to telegram: ", query_url)
 
@@ -28,12 +30,40 @@ func SendToTelegram(msg structs.Message) int {
 	if res.Ok == false {
 		return 2
 	}
+	if len(msg.Attachments) > 0 {
+		log.Println("Found", len(msg.Attachments), "attachments. Let's send it.")
+		for _, att := range msg.Attachments {
+			if att.Type == "photo" {
+				last_url_index := len(att.Photo.Sizes) - 1
+				url := att.Photo.Sizes[last_url_index].URL
+				photo_query := "https://api.telegram.org/bot" + token + "/sendPhoto?url=" + url
+				res := structs.TelegramResponse{}
+				err := tools.GetJson(photo_query, &res)
+				if err != nil {
+					log.Panic(err)
+					log.Println("Couldn't send attachment(")
+				}
+			}
+			if att.Type == "doc" {
+				url := att.Doc.URL
+				doc_query := "https://api.telegram.org/bot" + token + "/sendDocument?url=" + url
+				res := structs.TelegramResponse{}
+				err := tools.GetJson(doc_query, &res)
+				if err != nil {
+					log.Panic(err)
+					log.Println("Couldn't send attachment(")
+				}
+			}
+		}
+	}
+
 	return 0
 }
 
 func GetFullMessageText(graph structs.Message) string {
 	result := graph.Text
-	var queue []structs.Message
+	// TODO how to organize forwarded message in telegram
+	/*var queue []structs.Message
 	queue = append(queue, graph)
 
 	depth := 1
@@ -53,22 +83,16 @@ func GetFullMessageText(graph structs.Message) string {
 		if size > 0 {
 			result += "\n" + strings.Repeat("-", size) + "Forwarded:\n"
 		}
-	}
+	}*/
 
 	return result
 }
 
-func GetAttachments(msg structs.Message) []string {
-	var result []string
-	for i := 0; i < len(msg.Attachments); i++ {
-		att := msg.Attachments[i]
-		if att.Type == "photo" {
-			last_url_index := len(msg.Attachments[i].Photo.Sizes) - 1
-			result = append(result, msg.Attachments[i].Photo.Sizes[last_url_index].URL)
-		}
-		if att.Type == "doc" {
-			result = append(result, msg.Attachments[i].Doc.URL)
-		}
-	}
-	return result
+func GetDocURL(doc structs.Doc) string {
+	return doc.URL
+}
+
+func GetPhotoURL(photo structs.Photo) string {
+	last_url_index := len(photo.Sizes) - 1
+	return photo.Sizes[last_url_index].URL
 }
