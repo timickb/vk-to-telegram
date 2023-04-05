@@ -23,7 +23,7 @@ type Config struct {
 var Data = Config{}
 
 func ReadConfig() {
-	file, err := ioutil.ReadFile("config/config.json")
+	file, err := ioutil.ReadFile("config.json")
 	check(err)
 
 	_ = json.Unmarshal([]byte(file), &Data)

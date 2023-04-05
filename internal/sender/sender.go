@@ -1,11 +1,11 @@
-package main
+package sender
 
 import (
+	"github.com/timickb/vk-to-telegram/internal/config"
+	"github.com/timickb/vk-to-telegram/internal/structs"
+	"github.com/timickb/vk-to-telegram/internal/tools"
 	"log"
 	"net/url"
-	"vk-to-telegram/config"
-	"vk-to-telegram/structs"
-	"vk-to-telegram/tools"
 )
 
 func SendToTelegram(msg structs.Message) int {
